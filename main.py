@@ -30,6 +30,6 @@ def generate_output_path(input_path: str) -> str:
     return f"{filename} {now_str}{extension}"
 
 
-demo = gr.Interface(greet, ["video", gr.Image(type="filepath")], "video")
+demo = gr.Interface(greet, ["video", gr.Image(type="filepath")], "video", allow_flagging="never")
 
 demo.launch()
