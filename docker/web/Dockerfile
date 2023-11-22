@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM nvidia/cuda:12.3.0-runtime-ubuntu22.04
 
 ARG USER_ID=10001
 ARG USER_NAME=python
@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN <<EOF
   apt-get update
-  apt-get install --no-install-recommends -y git build-essential ffmpeg
+  DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y python3-dev python3-venv python3-tk git build-essential ffmpeg
   adduser --uid $USER_ID --home $USER_HOME --gecos "" --disabled-password $USER_NAME
 EOF
 
@@ -21,7 +21,7 @@ WORKDIR $USER_HOME
 
 RUN <<EOF
   git clone https://github.com/s0md3v/roop
-  python -m venv roop/.venv
+  python3 -m venv roop/.venv
   ./roop/.venv/bin/pip --no-cache-dir install -r roop/requirements.txt
 EOF
 
@@ -29,13 +29,15 @@ ADD --chown=$USER_NAME:$USER_NAME https://huggingface.co/ezioruan/inswapper_128.
 
 WORKDIR $USER_HOME/app
 
-COPY  . .
+COPY requirements.txt ./
 
 RUN <<EOF
-  python -m venv .venv
+  python3 -m venv .venv
   ./.venv/bin/pip --no-cache-dir install -r requirements.txt
 EOF
 
+COPY . .
+
 EXPOSE 7860
 
-ENTRYPOINT ["./.venv/bin/python", "main.py"]
+ENTRYPOINT ["./.venv/bin/python3", "main.py"]
